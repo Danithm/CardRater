@@ -5,6 +5,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       text: {
         type: Sequelize.STRING
+      },
+      rating: {
+        type: Sequelize.STRING
       }
     });
   

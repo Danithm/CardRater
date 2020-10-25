@@ -1,5 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
     const Cards = sequelize.define("cards", {
+      cardID: {
+        type: Sequelize.STRING
+      },
       cardName: {
         type: Sequelize.STRING
       },

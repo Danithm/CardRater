@@ -22,11 +22,12 @@ const getPagingData = (data, page, limit) => {
 //Need to adjust to make sure it attaches
 //as a correct one-to-many relationship
 //card -> comment
-exports.createComment = (cardName, comment) => {
+exports.createComment = (cardID, comment) => {
     return Comment.create({
       name: comment.name,
       text: comment.text,
-      cardName: cardName,
+      rating: comment.rating,
+      cardID: cardID,
     })
       .then((comment) => {
         console.log(">> Created comment: " + JSON.stringify(comment, null, 4));
@@ -82,10 +83,10 @@ exports.findAllBy = (req, res) => {
 exports.viewComments = (req, res) => {
     const { page, size } = req.query;
     const { limit, offset } = getPagination(page, size);
-    const cardName = req.params.cardName;
+    const cardID = req.params.cardID;
 
     //Might need to check sequelize syntax for one to many relationship
-    Cards.findAll({ where: { cardName: cardName, include: ["comments"] }, limit, offset})
+    Cards.findAll({ where: { cardID: cardID, include: ["comments"] }, limit, offset})
       .then(data => {
         const response = getPagingData(data, page, limit);
         res.send(data);
@@ -101,12 +102,12 @@ exports.viewComments = (req, res) => {
 //TODO: Add session key package
 exports.update = (req, res) => {
 
-    const cardName = req.params.cardName;
+    const cardID = req.params.cardID;
     const sessionKey = req.params.sessionKey;
 
     Cards.update(req.body, {
       where: { 
-          cardName: cardName,
+          cardID: cardID,
           sessionKey: sessionKey
         }
     })
