@@ -21,10 +21,18 @@ db.sequelize = sequelize;
 
 db.cards = require("./cards.model.js")(sequelize, Sequelize);
 db.comments = require("./comment.model.js")(sequelize, Sequelize);
+db.user = require("../models/user.model.js")(sequelize, Sequelize);
 
 db.cards.hasMany(db.comments, { as: "comments" });
+db.user.hasMany(db.comments, { as: "comments" });
+
+db.comments.belongsTo(db.user, {
+  foreignKey: "username",
+  as: "user",
+});
+
 db.comments.belongsTo(db.cards, {
-  foreignKey: "cardName",
+  foreignKey: "cardID",
   as: "cards",
 });
 

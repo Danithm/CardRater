@@ -3,23 +3,23 @@ module.exports = app => {
   
     var router = require("express").Router();
   
-    // Create a new comment
-    router.post("/cards/:cardName/:comment", cards.createComment);
+    // Create a new comment - move comments stuff to auth route
+    router.post("/cards/:cardID/:comment", cards.createComment);
   
     // Retrieve all cards
     router.get("/cards", cards.findAll);
   
-    // Retrieve all cards by attribute - placeholder route
-    router.get("/cards/:attribute", cards.findAllBy);
+    // Retrieve all cards by name
+    router.get("/cards/:cardName", cards.findAllBy);
   
     // View all comments
-    router.get("/cards/:cardName/comments", cards.viewComments);
+    router.get("/cards/:cardID", cards.viewComments);
 
-    // Update a comment with session key
-    router.put("/cards/:cardName/comments/:sessionKey", cards.update);
+    // Update a comment
+    router.put("/cards/:cardID/:comment", cards.update);
   
-    // Delete a comment with session key
-    router.delete("/cards/:cardName/comments/:sessionKey", cards.delete);
+    // Delete a comment
+    router.delete("/cards/:cardID/:comment", cards.delete);
   
     app.use('/api/cards', router);
   };

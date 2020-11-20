@@ -19,12 +19,11 @@ const getPagingData = (data, page, limit) => {
 };  
 
 // Create and Save a new comment
-//Need to adjust to make sure it attaches
-//as a correct one-to-many relationship
-//card -> comment
+//card -> comments
+//Add access check
 exports.createComment = (cardID, comment) => {
     return Comment.create({
-      name: comment.name,
+      username: comment.username,
       text: comment.text,
       rating: comment.rating,
       cardID: cardID,
@@ -40,9 +39,9 @@ exports.createComment = (cardID, comment) => {
 
 // Retrieve all cards from the database.
 exports.findAll = (req, res) => {
-    const { page, size, title } = req.query;
-    const cardName = req.query.cardName;
-    var condition = cardName ? { cardName: { [Op.like]: `%${cardName}%` } } : null;
+    const { page, size } = req.query;
+    const cardID = req.query.cardID;
+    var condition = cardID ? { cardID: { [Op.like]: `%${cardID}%` } } : null;
   
     const { limit, offset } = getPagination(page, size);
 
@@ -59,17 +58,17 @@ exports.findAll = (req, res) => {
       });
 };
 
-//Find all cards by attribute
+//Find all cards by name - modify later to switch attribute
 exports.findAllBy = (req, res) => {
     const { page, size } = req.query;
     const { limit, offset } = getPagination(page, size);
-    const attribute = req.params.attribute;
+    var condition = cardName ? { cardName: { [Op.like]: `%${cardName}%` } } : null;
 
     //Need to modify this to switch type 
-    Cards.findAll({ where: {/*param attribute = card attribute*/}, limit, offset })
+    Cards.findAll({ where: condition, limit, offset })
       .then(data => {
         const response = getPagingData(data, page, limit);
-        res.send(data);
+        res.send(response); //Might need to switch back to data
       })
       .catch(err => {
         res.status(500).send({
@@ -98,17 +97,16 @@ exports.viewComments = (req, res) => {
         });
       });
 }
-// Update a comment with a session key
-//TODO: Add session key package
+// Update a comment with a session key - move to auth controller
 exports.update = (req, res) => {
 
     const cardID = req.params.cardID;
-    const sessionKey = req.params.sessionKey;
+    const user = req.params.username;
 
-    Cards.update(req.body, {
+    Comment.update(req.body, {
       where: { 
           cardID: cardID,
-          sessionKey: sessionKey
+          username: user
         }
     })
       .then(num => {
@@ -118,23 +116,23 @@ exports.update = (req, res) => {
           });
         } else {
           res.send({
-            message: `Cannot update card comment with sessionKey=${sessionKey}. Maybe the comment was not found or req.body is empty!`
+            message: `Cannot update card comment as user=${user}. Maybe the comment was not found or req.body is empty!`
           });
         }
       })
       .catch(err => {
         res.status(500).send({
-          message: "Error updating comment with sessionKey=" + sessionKey
+          message: "Error updating comment" 
         });
       });
 };
 
 // Delete a comment with a session key
 exports.delete = (req, res) => {
-    const sessionKey = req.params.sessionKey;
+    const user = req.params.username;
 
-    Cards.destroy({
-      where: { sessionKey: sessionKey }
+    Comment.destroy({
+      where: { username: user }
     })
       .then(num => {
         if (num == 1) {
@@ -143,13 +141,13 @@ exports.delete = (req, res) => {
           });
         } else {
           res.send({
-            message: `Cannot delete comment with sessionKey=${sessionKey}. Maybe comment was not found!`
+            message: `Cannot delete comment as user=${user}. Maybe comment was not found!`
           });
         }
       })
       .catch(err => {
         res.status(500).send({
-          message: "Could not delete comment with sessionKey=" + sessionKey
+          message: "Could not delete comment"
         });
       });
 };

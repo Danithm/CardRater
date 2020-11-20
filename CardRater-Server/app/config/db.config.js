@@ -2,7 +2,7 @@ module.exports = {
     HOST: "localhost",
     USER: "root",
     PASSWORD: "MyL0ng@$$$3cur3", //change to your local version
-    DB: "placeholderdb",
+    DB: "cs366project",
     dialect: "mysql",
     pool: {
       max: 5,

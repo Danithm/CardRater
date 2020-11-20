@@ -17,8 +17,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //Connects the schema model and checks for synced db
+//No more forced true - it takes like 48 hours for the table to rebuild
 const db = require("./app/models");
-db.sequelize.sync({ force: true }).then(() => {
+db.sequelize.sync().then(() => {
     console.log("Drop and re-sync db.");
   });
 
@@ -29,6 +30,8 @@ app.get("/", (req, res) => {
 
 //Check below for the rest of the routes
 require("./app/routes/cards.routes")(app);
+require('./app/routes/auth.routes')(app);
+require('./app/routes/user.routes')(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
