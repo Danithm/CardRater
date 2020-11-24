@@ -3,21 +3,6 @@ const Cards = db.cards;
 const Comment = db.comments;
 const Op = db.Sequelize.Op;
 
-//Get limit/offset data for pagination
-const getPagination = (page, size) => {
-    const limit = size ? +size : 20;
-    const offset = page ? page * limit : 0;
-  
-    return { limit, offset };
-};
-const getPagingData = (data, page, limit) => {
-  const { count: totalItems, rows: cards } = data;
-  const currentPage = page ? +page : 0;
-  const totalPages = Math.ceil(totalItems / limit);
-
-  return { totalItems, cards, totalPages, currentPage };
-};  
-
 // Create and Save a new comment
 //card -> comments
 //Add access check
@@ -39,16 +24,12 @@ exports.createComment = (cardID, comment) => {
 
 // Retrieve all cards from the database.
 exports.findAll = (req, res) => {
-    const { page, size } = req.query;
-    const cardID = req.query.cardID;
-    var condition = cardID ? { cardID: { [Op.like]: `%${cardID}%` } } : null;
-  
-    const { limit, offset } = getPagination(page, size);
+    const cardName = req.query.cardName;
+    var condition = cardName ? { cardName: { [Op.like]: `%${cardName}%` } } : null;
 
-    Cards.findAll({ where: condition, limit, offset })
+    Cards.findAll({ where: condition })
       .then(data => {
-        const response = getPagingData(data, page, limit);
-        res.send(data);
+        res.send(data);//Changed from reponse to only send unpaged data
       })
       .catch(err => {
         res.status(500).send({
@@ -59,16 +40,16 @@ exports.findAll = (req, res) => {
 };
 
 //Find all cards by name - modify later to switch attribute
+//Likely don't need paging for this one
+//It finds the card for the single page
 exports.findAllBy = (req, res) => {
-    const { page, size } = req.query;
-    const { limit, offset } = getPagination(page, size);
-    var condition = cardName ? { cardName: { [Op.like]: `%${cardName}%` } } : null;
+    const cardID = req.params.cardID;
+    var condition = cardID ? { cardID: { [Op.like]: `%${cardID}%` } } : null;
 
     //Need to modify this to switch type 
-    Cards.findAll({ where: condition, limit, offset })
+    Cards.findAll({ where: {cardID: cardID} })
       .then(data => {
-        const response = getPagingData(data, page, limit);
-        res.send(response); //Might need to switch back to data
+        res.send(data);
       })
       .catch(err => {
         res.status(500).send({
@@ -80,14 +61,11 @@ exports.findAllBy = (req, res) => {
 
 //View all comments of a card
 exports.viewComments = (req, res) => {
-    const { page, size } = req.query;
-    const { limit, offset } = getPagination(page, size);
     const cardID = req.params.cardID;
 
     //Might need to check sequelize syntax for one to many relationship
-    Cards.findAll({ where: { cardID: cardID, include: ["comments"] }, limit, offset})
+    Cards.findAll({ where: { cardID: cardID, include: ["comments"] }})
       .then(data => {
-        const response = getPagingData(data, page, limit);
         res.send(data);
       })
       .catch(err => {
@@ -128,6 +106,8 @@ exports.update = (req, res) => {
 };
 
 // Delete a comment with a session key
+//Check for commentID or just match cardID
+//Since delete should only be visble on card page
 exports.delete = (req, res) => {
     const user = req.params.username;
 

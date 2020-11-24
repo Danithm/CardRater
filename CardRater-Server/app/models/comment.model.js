@@ -9,9 +9,6 @@ module.exports = (sequelize, Sequelize) => {
       rating: {
         type: Sequelize.INTEGER
       },
-      cardID: {
-        type: Sequelize.STRING
-      },
     });
     return Comment;
   };

@@ -27,13 +27,12 @@ db.cards.hasMany(db.comments, { as: "comments" });
 db.user.hasMany(db.comments, { as: "comments" });
 
 db.comments.belongsTo(db.user, {
-  foreignKey: "username",
-  as: "user",
+  foreignKey: "username"
 });
 
 db.comments.belongsTo(db.cards, {
   foreignKey: "cardID",
-  as: "cards",
+  as: "cards"
 });
 
 module.exports = db;
