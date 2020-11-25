@@ -3,24 +3,23 @@ module.exports = app => {
   
     var router = require("express").Router();
   
-    // Create a new comment - move comments stuff to auth route
-    router.post("/:cardID/:comment", cards.createComment);
+    // Create a new comment
+    router.post("/:cardID", cards.createComment);
   
     // Retrieve all cards
     router.get("/", cards.findAll);
   
-    // Retrieve all cards by name
+    // Retrieve a single card by ID
     router.get("/:cardID", cards.findAllBy);
   
     // View all comments
-    router.get("/:cardID", cards.viewComments);
+    router.get("/:cardID/comments", cards.viewComments);
 
-    // Update a comment - change route
-    //Currently fires off when creating
-   // router.put("/:cardID/:comment", cards.update);
+    // Update a comment
+    router.put("/:cardID/comments/:commentID", cards.update);
   
     // Delete a comment
-    router.delete("/:cardID/:comment", cards.delete);
+    router.delete("/:cardID/comments/:commentID", cards.delete);
   
     app.use('/api/cards', router);
   };

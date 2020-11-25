@@ -6,18 +6,22 @@ const Op = db.Sequelize.Op;
 // Create and Save a new comment
 //card -> comments
 //Add access check
-exports.createComment = (cardID, comment) => {
-    return Comment.create({
-      username: comment.username,
-      text: comment.text,
-      rating: comment.rating,
-      cardID: cardID,
+exports.createComment = (req, res) => {
+    Comment.create({
+      username: req.body.username,
+      text: req.body.text,
+      rating: req.body.rating,
+      cardID: req.body.cardID,
     })
-      .then((comment) => {
-        console.log(">> Created comment: " + JSON.stringify(comment, null, 4));
-        return comment;
+      .then(data => {
+        console.log(">> Created comment: " + JSON.stringify(data, null, 4));
+        res.send(data);
       })
       .catch((err) => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the comment."
+        });
         console.log(">> Error while creating comment: ", err);
       });
   };
@@ -44,10 +48,9 @@ exports.findAll = (req, res) => {
 //It finds the card for the single page
 exports.findAllBy = (req, res) => {
     const cardID = req.params.cardID;
-    var condition = cardID ? { cardID: { [Op.like]: `%${cardID}%` } } : null;
 
     //Need to modify this to switch type 
-    Cards.findAll({ where: {cardID: cardID} })
+    Cards.findAll({ where: {cardID: cardID}})
       .then(data => {
         res.send(data);
       })
@@ -64,7 +67,7 @@ exports.viewComments = (req, res) => {
     const cardID = req.params.cardID;
 
     //Might need to check sequelize syntax for one to many relationship
-    Cards.findAll({ where: { cardID: cardID, include: ["comments"] }})
+    Comment.findAll({ where: { cardID: cardID}})
       .then(data => {
         res.send(data);
       })
