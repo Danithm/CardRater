@@ -15,6 +15,6 @@ module.exports = function(app) {
   app.get(
     "/api/profile",
     [authJwt.verifyToken],
-    controller.userBoard
+    controller.viewComments
   );
 };

@@ -4,9 +4,8 @@ const Comment = db.comments;
 const Op = db.Sequelize.Op;
 
 // Create and Save a new comment
-//card -> comments
-//Add access check
 exports.createComment = (req, res) => {
+    console.info(req.params)
     Comment.create({
       username: req.body.username,
       text: req.body.text,
@@ -26,14 +25,33 @@ exports.createComment = (req, res) => {
       });
   };
 
+//Pagination functions
+const getPagination = (page, size) => {
+  const limit = size ? +size : 10;
+  const offset = page ? page * limit : 0;
+
+  return { limit, offset };
+};
+
+const getPagingData = (data, page, limit) => {
+  const { count: totalItems, rows: cards } = data;
+  const currentPage = page ? +page : 0;
+  const totalPages = Math.ceil(totalItems / limit);
+
+  return { totalItems, cards, totalPages, currentPage };
+};
+
 // Retrieve all cards from the database.
 exports.findAll = (req, res) => {
+  const { page, size} = req.query;
     const cardName = req.query.cardName;
     var condition = cardName ? { cardName: { [Op.like]: `%${cardName}%` } } : null;
+    const { limit, offset } = getPagination(page, size);
 
-    Cards.findAll({ where: condition })
+    Cards.findAndCountAll({ where: condition, limit, offset })
       .then(data => {
-        res.send(data);//Changed from reponse to only send unpaged data
+        const response = getPagingData(data, page, limit);
+        res.send(response);
       })
       .catch(err => {
         res.status(500).send({
@@ -43,7 +61,6 @@ exports.findAll = (req, res) => {
       });
 };
 
-//Find all cards by name - modify later to switch attribute
 //Likely don't need paging for this one
 //It finds the card for the single page
 exports.findAllBy = (req, res) => {
@@ -66,7 +83,6 @@ exports.findAllBy = (req, res) => {
 exports.viewComments = (req, res) => {
     const cardID = req.params.cardID;
 
-    //Might need to check sequelize syntax for one to many relationship
     Comment.findAll({ where: { cardID: cardID}})
       .then(data => {
         res.send(data);
@@ -78,59 +94,59 @@ exports.viewComments = (req, res) => {
         });
       });
 }
-// Update a comment with a session key - move to auth controller
+
+// Update a comment with a current user check
 exports.update = (req, res) => {
+    const commentID = req.params.commentID;
+    const username = req.body.username;
+    const text = req.body.text;
+    const rating = req.body.rating;
 
-    const cardID = req.params.cardID;
-    const user = req.params.username;
+    console.info(req.body);
 
-    Comment.update(req.body, {
-      where: { 
-          cardID: cardID,
-          username: user
-        }
+    Comment.update({   
+        username: username,
+        text: text,
+        rating: rating,
+      },  
+      {where: { id: commentID }
     })
-      .then(num => {
-        if (num == 1) {
-          res.send({
-            message: "Comment was updated successfully."
-          });
-        } else {
-          res.send({
-            message: `Cannot update card comment as user=${user}. Maybe the comment was not found or req.body is empty!`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error updating comment" 
-        });
+    .then(data => {
+      console.log(">> Created comment: " + JSON.stringify(data, null, 4));
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the comment."
       });
+      console.log(">> Error while creating comment: ", err);
+    });
 };
 
-// Delete a comment with a session key
-//Check for commentID or just match cardID
-//Since delete should only be visble on card page
+// Delete a comment
 exports.delete = (req, res) => {
-    const user = req.params.username;
+    const commentID = req.params.commentID;
 
     Comment.destroy({
-      where: { username: user }
+      where: { 
+        id: commentID
+      }
     })
-      .then(num => {
-        if (num == 1) {
-          res.send({
-            message: "Comment was deleted successfully!"
-          });
-        } else {
-          res.send({
-            message: `Cannot delete comment as user=${user}. Maybe comment was not found!`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Could not delete comment"
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Comment was deleted successfully!"
         });
+      } else {
+        res.send({
+          message: `Cannot delete Comment with id=${id}. Maybe Comment was not found!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete Comment with id=" + id
       });
+    });
 };
