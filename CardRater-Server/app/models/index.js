@@ -23,15 +23,4 @@ db.cards = require("./cards.model.js")(sequelize, Sequelize);
 db.comments = require("./comment.model.js")(sequelize, Sequelize);
 db.user = require("../models/user.model.js")(sequelize, Sequelize);
 
-//db.cards.hasMany(db.comments, { as: "comments" });
-//db.user.hasMany(db.comments, { as: "comments" });
-
-/*db.comments.belongsTo(db.user, {
-  foreignKey: "username"
-});
-
-db.comments.belongsTo(db.cards, {
-  foreignKey: "cardID"
-});
-*/
 module.exports = db;

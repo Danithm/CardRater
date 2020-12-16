@@ -42,6 +42,8 @@ const getPagingData = (data, page, limit) => {
 };
 
 // Retrieve all cards from the database.
+//Switch case, if name, get all card like name
+//Else get all
 exports.findAll = (req, res) => {
   const { page, size} = req.query;
     const cardName = req.query.cardName;
@@ -62,11 +64,10 @@ exports.findAll = (req, res) => {
 };
 
 //Likely don't need paging for this one
-//It finds the card for the single page
+//It finds the card by id for the single page
 exports.findAllBy = (req, res) => {
     const cardID = req.params.cardID;
 
-    //Need to modify this to switch type 
     Cards.findAll({ where: {cardID: cardID}})
       .then(data => {
         res.send(data);
@@ -79,7 +80,7 @@ exports.findAllBy = (req, res) => {
       });
 };
 
-//View all comments of a card
+//View all comments of a card by cardID
 exports.viewComments = (req, res) => {
     const cardID = req.params.cardID;
 
@@ -95,7 +96,7 @@ exports.viewComments = (req, res) => {
       });
 }
 
-// Update a comment with a current user check
+// Update a comment
 exports.update = (req, res) => {
     const commentID = req.params.commentID;
     const username = req.body.username;

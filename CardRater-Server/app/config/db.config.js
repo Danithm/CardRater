@@ -1,7 +1,7 @@
 module.exports = {
     HOST: "localhost",
     USER: "root",
-    PASSWORD: "MyL0ng@$$$3cur3", //change to your local version
+    PASSWORD: "", //change to your local version
     DB: "cs366project",
     dialect: "mysql",
     pool: {
@@ -11,6 +11,3 @@ module.exports = {
       idle: 10000
     }
   };
-  //Check: https://sequelize.org/master/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor
-  //If we need additional options
-  //Like schema/query configs

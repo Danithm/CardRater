@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //Connects the schema model and checks for synced db
-//No more forced true - it takes like 48 hours for the table to rebuild
+//No more forced true - it takes like 56 hours for the table to rebuild
 const db = require("./app/models");
 db.sequelize.sync().then(() => {
     console.log("Drop and re-sync db.");

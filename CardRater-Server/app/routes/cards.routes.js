@@ -6,7 +6,7 @@ module.exports = app => {
     // Create a new comment
     router.post("/:cardID", cards.createComment);
   
-    // Retrieve all cards
+    // Retrieve all cards/search 'like' name
     router.get("/", cards.findAll);
   
     // Retrieve a single card by ID
